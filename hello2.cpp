@@ -3,5 +3,5 @@
 int main(){
 	cout << "Welcome to OOP!\n";
 	keep_window_open();
-	return 0;
+    return 0;
 }
