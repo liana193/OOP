@@ -4,8 +4,16 @@
 Date::Date(int yy, Month mm, int dd)
 :y{yy}, m{mm}, d{dd}
 {
-    if(!is_valid())
-        throw Invalid{};
+    if(!is_valid()){
+        cout << "error: Date not Valid\n" <<  "Enter Valid Date: ";
+        Date input;
+        try{
+            cin >> input;
+        }
+        catch(exception e){
+             cout << "error: Date not Valid\n" <<  "Enter Valid Date: ";
+        }
+    }
 }
 
 Date::Date()
