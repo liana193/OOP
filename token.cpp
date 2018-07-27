@@ -1,55 +1,63 @@
-
 #include "std_lib_facilities.h"
+#include "token.h"
 
-class Token{
-public:
-    char kind;
-    double value;
-};
-
-Token get_token();
-vector<Token> tokens;
-
-int main(){
-    for(Token t = get_token(); t.kind != 'q'; t = get_token()){
-        tokens.push_back(t);
-    }
-    for(Token token: tokens){
-        if (token.kind == '#')
-            cout << "A number token with val= "<< token.value << "\n";
-        else if(token.value == 0)
-            cout << "A token of kind " << token.kind << "\n";
-        else
-            cout << "We received an invalid token of value " << token.kind << "\n";
-    }
+std::ostream &operator<<(std::ostream &os, Token const &t) {
+    return os << t.kind;
 }
 
-Token get_token(){
+void Token_stream::ignore(char c)
+{
+    while(buffer.size() > 0) {
+        Token t = popback();
+        if(t.kind == c) return;
+    }
+
+    char ch = 0;
+    while(cin>>ch)
+        if(ch == c) return;
+}
+
+void Token_stream::putback(Token t){
+    buffer.push_back(t);
+}
+
+Token Token_stream::popback()
+{
+    Token t = buffer.back();
+    buffer.pop_back();
+    return t;
+}
+
+Token Token_stream::get(){
+    if(buffer.size() > 0) {
+        Token t = popback();
+        return t;
+    }
+
     char ch;
     cin >> ch;
     switch(ch){
-    case 'q':
-    case ';':
-    case '(':
-    case ')':
-    case '+':
-    case '-':
-    case '*':
-    case '/':
-    case '%':
-    return Token{ch};
-
-    case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9': case '.':
+    case quit: case print: case '(': case ')': case '+': case '-': case '*': case '/': case mod: case '=': case power:
+        return Token{ch};
+    case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
         {
            cin.putback(ch);
            double val;
            cin >> val;
-           return Token{'#', val};
+           return Token{number, val};
         }
-
     default:
-        return Token{ch, 1};
+        if(isalpha(ch)){
+            string s;
+            s += ch;
+            while(cin.get(ch) && (isalpha(ch) || isdigit(ch))) s+= ch;
+            cin.putback(ch);
+            return Token{name, s};
+        }
+        return Token{invalid, double(ch)};
 
     }
-
+    return Token{quit};
 }
+
+
